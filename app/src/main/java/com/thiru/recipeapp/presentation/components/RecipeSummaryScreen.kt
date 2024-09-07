@@ -1,5 +1,6 @@
 package com.thiru.recipeapp.presentation.components
 
+import android.widget.TextView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -63,7 +66,17 @@ fun RecipeSummaryScreen(viewModel: RecipeSummaryViewModel = hiltViewModel<Recipe
 
                 text = recipeSummary.title,
             )
-            Text(text = recipeSummary.summary)
+            Spacer(modifier = Modifier.height(8.dp))
+            HtmlText(html = recipeSummary.summary)
         }
     }
+}
+
+@Composable
+fun HtmlText(html: String) {
+    AndroidView(factory = { context ->
+        TextView(context).apply {
+            text = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        }
+    })
 }
