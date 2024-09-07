@@ -89,6 +89,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
 
+    //coil
+    implementation(libs.coil)
+
     //test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
