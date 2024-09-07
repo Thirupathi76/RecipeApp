@@ -18,6 +18,7 @@ import com.thiru.recipeapp.presentation.viewmodel.RecipeViewModel
 
 @Composable
 fun RecipeListScreen(
+    navController: NavController,
     viewModel: RecipeViewModel = hiltViewModel<RecipeViewModel>()
 ) {
     val recipeListState = viewModel.recipeList.collectAsState().value
@@ -34,6 +35,7 @@ fun RecipeListScreen(
             items(recipeListState.recipeList.size) { index ->
                 RecipeItem(
                     recipe = recipeListState.recipeList[index],
+                    navController = navController
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

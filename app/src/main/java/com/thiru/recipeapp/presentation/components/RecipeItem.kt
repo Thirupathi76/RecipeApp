@@ -21,16 +21,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
+import com.thiru.recipeapp.common.Screen
 import com.thiru.recipeapp.data.dto.Recipe
+import java.net.URLEncoder
 
 @Composable
 fun RecipeItem(
-    recipe: Recipe
+    navController: NavController,
+    recipe: Recipe,
 ) {
+
     val imageState = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(recipe.image)
@@ -44,7 +49,10 @@ fun RecipeItem(
             .width(200.dp)
             .padding(horizontal = 4.dp, vertical = 4.dp)
             .clickable {
-                //todo redirect to summary screen
+                val imageUrlEncoded = URLEncoder.encode(recipe.image, "UTF-8")
+                navController.navigate(
+                    Screen.RecipeSummaryScreen.route + "/${recipe.id}/${imageUrlEncoded}"
+                )
             }
     ) {
         Box(
@@ -52,7 +60,7 @@ fun RecipeItem(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            if(imageState is AsyncImagePainter.State.Success) {
+            if (imageState is AsyncImagePainter.State.Success) {
                 Image(
                     modifier = Modifier
                         .width(120.dp)

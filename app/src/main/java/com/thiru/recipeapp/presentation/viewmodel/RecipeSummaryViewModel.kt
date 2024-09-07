@@ -1,10 +1,11 @@
 package com.thiru.recipeapp.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thiru.recipeapp.common.ResultState
 import com.thiru.recipeapp.domain.repository.RecipeRepository
-import com.thiru.recipeapp.presentation.components.RecipeListState
+import com.thiru.recipeapp.presentation.components.RecipeSummaryState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,38 +15,44 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RecipeViewModel @Inject constructor(
-    private val recipeRepository: RecipeRepository
+class RecipeSummaryViewModel @Inject constructor(
+    private val recipeRepository: RecipeRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private var _recipeList = MutableStateFlow(RecipeListState())
-    val recipeList = _recipeList.asStateFlow()
+    private val id = savedStateHandle.get<Int>("id")
+    private val imageUrl: String? = savedStateHandle.get<String>("imageUrl")//todo
+    private var _recipeSummary = MutableStateFlow(RecipeSummaryState())
+    val recipeSummary = _recipeSummary.asStateFlow()
 
     init {
-        getRecipeList()
+        getRecipeSummary(id ?: -1)
     }
 
-    private fun getRecipeList() {
+    private fun getRecipeSummary(id: Int) {
         viewModelScope.launch {
-            _recipeList.update {
+            _recipeSummary.update {
                 it.copy(loading = true)
             }
-            recipeRepository.getRecipes(20).collectLatest { result ->
+            recipeRepository.recipeSummary(id).collectLatest { result ->
                 when (result) {
                     is ResultState.Success -> {
-                        _recipeList.update {
-                            it.copy(recipeList = result.data?.results!!)//todo
+                        _recipeSummary.update {
+                            it.copy(
+                                recipeSummary =
+                                result.data?.toRecipeSummary(imageUrl = imageUrl)
+                            )
                         }
                     }
 
                     is ResultState.Error -> {
-                        _recipeList.update {
+                        _recipeSummary.update {
                             it.copy(errorMessage = result.message, loading = false)
                         }
                     }
 
                     is ResultState.Loading -> {
-                        _recipeList.update {
+                        _recipeSummary.update {
                             it.copy(loading = result.isLoading)
                         }
                     }
@@ -54,9 +61,4 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    fun searchRecipe(query: String) {
-        viewModelScope.launch {
-
-        }
-    }
 }
