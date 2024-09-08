@@ -19,7 +19,7 @@ class RecipeRepositoryImpl @Inject constructor(
             emit(ResultState.Loading(true))
 
             val recipeList = try {
-                recipeApi.getRecipes(20)//todo check
+                recipeApi.getRecipes(number)
             } catch (e: Exception) {
                 emit(ResultState.Error(message = "Error fetching recipes ${e.message}"))
                 return@flow
