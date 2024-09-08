@@ -36,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -129,7 +130,13 @@ fun RecipeListScreen(
             is ResultState.Success -> {
                 val recipes = recipeListState.value.data?.results ?: emptyList()
                 if(recipes.isEmpty()) {
-                    Text(text = "Results not found")
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = "Results not found"
+                    )
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -148,7 +155,12 @@ fun RecipeListScreen(
                 }
             }
             is ResultState.Error -> {
-                Text("Error: ${recipeListState.value.message}")
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    text = "Error: ${recipeListState.value.message}"
+                )
             }
         }
     }
