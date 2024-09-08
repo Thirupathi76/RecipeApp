@@ -56,7 +56,29 @@ class RecipeViewModel @Inject constructor(
 
     fun searchRecipe(query: String) {
         viewModelScope.launch {
+            _recipeList.update {
+                it.copy(loading = true)
+            }
 
+            recipeRepository.searchRecipes(query).collectLatest { result ->
+                when(result) {
+                    is ResultState.Success -> {
+                        _recipeList.update {
+                            it.copy(recipeList = result.data?.results!!)//todo
+                        }
+                    }
+                    is ResultState.Error -> {
+                        _recipeList.update {
+                            it.copy(errorMessage = result.message, loading = false)
+                        }
+                    }
+                    is ResultState.Loading -> {
+                        _recipeList.update {
+                            it.copy(loading = result.isLoading)
+                        }
+                    }
+                }
+            }
         }
     }
 }
