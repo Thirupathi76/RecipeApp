@@ -46,6 +46,7 @@ fun RecipeListScreen(
     viewModel: RecipeViewModel = hiltViewModel<RecipeViewModel>()
 ) {
     val recipeListState = viewModel.recipeList.collectAsState().value
+    val recipesList = recipeListState.data?.results ?: emptyList()
 
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var results by remember { mutableStateOf(emptyList<String>()) }
@@ -139,16 +140,16 @@ fun RecipeListScreen(
             }
         }
 
-        if (recipeListState.recipeList.isEmpty()) {
+        if (recipesList.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth())
         } else {
             LazyVerticalGrid(columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp),
             ) {
-                items(recipeListState.recipeList.size) { index ->
+                items(recipesList.size) { index ->
                     RecipeItem(
-                        recipe = recipeListState.recipeList[index],
+                        recipe = recipesList[index],
                         navController = navController,
                     )
 

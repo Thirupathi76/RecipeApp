@@ -25,42 +25,26 @@ class RecipeRepositoryImpl @Inject constructor(
                 return@flow
             }
             emit(ResultState.Success(recipeList))
-
-            emit(ResultState.Loading(false))
         }
     }
 
-    override suspend fun searchRecipes(query: String): Flow<ResultState<RecipeList>> {
-
-        return flow {
+    override suspend fun searchRecipes(query: String): Flow<ResultState<RecipeList>> = flow {
+        try {
             emit(ResultState.Loading(true))
-
-            val recipeList = try {
-                recipeApi.searchRecipes(query = query)
-            } catch (e: Exception) {
-                emit(ResultState.Error(message = "Error fetching recipes ${e.message}"))
-                return@flow
-            }
-            emit(ResultState.Success(recipeList))
-
-            emit(ResultState.Loading(false))
+            val response = recipeApi.searchRecipes(query)
+            emit(ResultState.Success(response))
+        } catch (e: Exception) {
+            emit(ResultState.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
-    override suspend fun recipeSummary(id: Int): Flow<ResultState<RecipeSummary>> {
-
-        return flow {
+    override suspend fun recipeSummary(id: Int): Flow<ResultState<RecipeSummary>> = flow {
+        try {
             emit(ResultState.Loading(true))
-
-            val recipeSummary = try {
-                recipeApi.recipeSummary(id = id)
-            } catch (e: Exception) {
-                emit(ResultState.Error(message = "Error fetching recipes ${e.message}"))
-                return@flow
-            }
-            emit(ResultState.Success(recipeSummary))
-
-            emit(ResultState.Loading(false))
+            val response = recipeApi.recipeSummary(id)
+            emit(ResultState.Success(response))
+        } catch (e: Exception) {
+            emit(ResultState.Error(e.message ?: "Unknown error occurred"))
         }
     }
 
