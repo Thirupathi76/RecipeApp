@@ -21,11 +21,5 @@ View detailed summaries of each recipe.
   <img alt="screenshot2" src="https://github.com/Thirupathi76/RecipeApp/blob/main/app/src/main/res/assets/screenshots/Screenshot_20240908_195108.png?raw=true" width="300">
 </p>
 
-# Demo Video
-
-<video width="600" controls>
-  <source src="https://github.com/Thirupathi76/RecipeApp/blob/main/app/src/main/res/assets/screenshots/Screen_recording_20240908_195514.webm" type="video/webm">
-  Your browser does not support the video tag.
-</video>
 
 
