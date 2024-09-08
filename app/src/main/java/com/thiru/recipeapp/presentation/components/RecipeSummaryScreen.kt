@@ -32,11 +32,11 @@ import com.thiru.recipeapp.presentation.viewmodel.RecipeSummaryViewModel
 fun RecipeSummaryScreen(viewModel: RecipeSummaryViewModel = hiltViewModel<RecipeSummaryViewModel>()) {
 
     val recipeSummaryState = viewModel.recipeSummary.collectAsState().value
-    val recipeSummary: RecipeSummary? = recipeSummaryState.recipeSummary
+    val recipeSummary: RecipeSummary? = recipeSummaryState.data
 
     val imageState = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(recipeSummary?.imageUrl)
+            .data(viewModel.imageUrl)
             .size(Size.ORIGINAL)
             .build()
     ).state
@@ -63,7 +63,6 @@ fun RecipeSummaryScreen(viewModel: RecipeSummaryViewModel = hiltViewModel<Recipe
                     .wrapContentWidth(),
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
-
                 text = recipeSummary.title,
             )
             Spacer(modifier = Modifier.height(8.dp))
