@@ -5,9 +5,4 @@ data class RecipeSummary(
     val summary: String,
     val title: String,
     val imageUrl: String?,
-) {
-
-    fun toRecipeSummary(imageUrl: String?): RecipeSummary {
-        return copy(id = id, summary = summary, imageUrl = imageUrl, title = title)
-    }
-}
+)

@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.thiru.recipeapp.common.ResultState
 import com.thiru.recipeapp.data.dto.RecipeList
 import com.thiru.recipeapp.domain.repository.RecipeRepository
-import com.thiru.recipeapp.presentation.components.RecipeListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,5 +39,9 @@ class RecipeViewModel @Inject constructor(
                     _recipeList.value = result
                 }
         }
+    }
+
+    fun onQueryChange(query: String) {
+        searchRecipe(query)
     }
 }

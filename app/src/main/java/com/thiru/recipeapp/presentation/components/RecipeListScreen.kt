@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.thiru.recipeapp.common.ResultState
 import com.thiru.recipeapp.presentation.viewmodel.RecipeViewModel
 
 @Composable
@@ -45,11 +47,9 @@ fun RecipeListScreen(
     navController: NavController,
     viewModel: RecipeViewModel = hiltViewModel<RecipeViewModel>()
 ) {
-    val recipeListState = viewModel.recipeList.collectAsState().value
-    val recipesList = recipeListState.data?.results ?: emptyList()
+    val recipeListState = viewModel.recipeList.collectAsState()
 
     var searchText by remember { mutableStateOf(TextFieldValue()) }
-    var results by remember { mutableStateOf(emptyList<String>()) }
 
     Column {
         Column(
@@ -77,12 +77,9 @@ fun RecipeListScreen(
                     TextField(
                         value = searchText,
                         onValueChange = { newValue ->
-                            searchText = newValue
-                            if (newValue.text.length >= 3) {
-                                viewModel.searchRecipe(newValue.text)
-//                            results = fetchResults(newValue.text)
-                            } else {
-                                results = emptyList()
+                            if (searchText.text != newValue.text) {
+                                searchText = newValue
+                                viewModel.onQueryChange(searchText.text)
                             }
                         },
                         modifier = Modifier
@@ -120,42 +117,35 @@ fun RecipeListScreen(
                     )
                 }
             }
+        }
 
-            if (results.isNotEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White)
-                        .padding(top = 8.dp)
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        results.forEach { result ->
-                            Text(
-                                text = result,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        when (recipeListState.value) {
+            is ResultState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
+            is ResultState.Success -> {
+                val recipes = recipeListState.value.data?.results ?: emptyList()
+                if(recipes.isEmpty()) {
+                    Text(text = "Results not found")
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp),
+                    ) {
+                        items(recipes.size) { index ->
+                            RecipeItem(
+                                recipe = recipes[index],
+                                navController = navController,
                             )
+
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
             }
-        }
-
-        if (recipesList.isEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth())
-        } else {
-            LazyVerticalGrid(columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp),
-            ) {
-                items(recipesList.size) { index ->
-                    RecipeItem(
-                        recipe = recipesList[index],
-                        navController = navController,
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
+            is ResultState.Error -> {
+                Text("Error: ${recipeListState.value.message}")
             }
         }
     }
