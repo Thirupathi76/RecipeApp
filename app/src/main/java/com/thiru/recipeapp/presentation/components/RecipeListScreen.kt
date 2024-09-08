@@ -101,7 +101,10 @@ fun RecipeListScreen(
                         },
                         trailingIcon = {
                             if (searchText.text.isNotEmpty()) {
-                                IconButton(onClick = { searchText = TextFieldValue() }) {
+                                IconButton(onClick = {
+                                    searchText = TextFieldValue()
+                                    viewModel.onQueryChange("")
+                                }) {
                                     Icon(Icons.Default.Close, contentDescription = "Clear")
                                 }
                             }

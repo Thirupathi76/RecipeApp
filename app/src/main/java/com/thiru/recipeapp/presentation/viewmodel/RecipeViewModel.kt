@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,13 +22,33 @@ class RecipeViewModel @Inject constructor(
     private var _recipeList = MutableStateFlow<ResultState<RecipeList>>(ResultState.Loading())
     val recipeList = _recipeList.asStateFlow()
 
+    private var _initialResult: RecipeList? = null
+
+    private val queryFlow = MutableStateFlow("")
+    private var isFirstLoad = true
+
     init {
-        getRecipeList()
+        viewModelScope.launch {
+            queryFlow
+                .debounce(300L)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    if (query.isBlank() && isFirstLoad) {
+                        isFirstLoad = false
+                        getRecipeList()
+                    } else if (query.isBlank()) {
+                        _recipeList.value = ResultState.Success(_initialResult)
+                    } else if (query.length >= 3){
+                        searchRecipe(query)
+                    }
+                }
+        }
     }
 
     private fun getRecipeList() {
         viewModelScope.launch {
             recipeRepository.getRecipes(20).collectLatest { result ->
+                _initialResult = result.data
                 _recipeList.value = result
             }
         }
@@ -41,7 +63,9 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    fun onQueryChange(query: String) {
-        searchRecipe(query)
+    fun onQueryChange(newQuery: String) {
+        if (queryFlow.value != newQuery) {
+            queryFlow.value = newQuery
+        }
     }
 }

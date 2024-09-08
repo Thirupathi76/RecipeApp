@@ -63,7 +63,7 @@ fun RecipeItem(
             if (imageState is AsyncImagePainter.State.Success) {
                 Image(
                     modifier = Modifier
-                        .width(120.dp)
+                        .width(160.dp)
                         .height(120.dp)
                         .clip(RoundedCornerShape(8.dp)),
                     contentDescription = recipe.title,

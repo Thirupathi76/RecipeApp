@@ -31,7 +31,9 @@ import com.thiru.recipeapp.common.ResultState
 import com.thiru.recipeapp.presentation.viewmodel.RecipeSummaryViewModel
 
 @Composable
-fun RecipeSummaryScreen(viewModel: RecipeSummaryViewModel = hiltViewModel<RecipeSummaryViewModel>()) {
+fun RecipeSummaryScreen(
+    viewModel: RecipeSummaryViewModel = hiltViewModel<RecipeSummaryViewModel>()
+) {
 
     val recipeSummaryState = viewModel.recipeSummary.collectAsState().value
 
@@ -43,12 +45,15 @@ fun RecipeSummaryScreen(viewModel: RecipeSummaryViewModel = hiltViewModel<Recipe
     ).state
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        when(recipeSummaryState) {
+        when (recipeSummaryState) {
             is ResultState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             }
+
             is ResultState.Success -> {
                 if (imageState is AsyncImagePainter.State.Success) {
                     Image(
@@ -66,14 +71,16 @@ fun RecipeSummaryScreen(viewModel: RecipeSummaryViewModel = hiltViewModel<Recipe
                         .wrapContentWidth(),
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
-                    text =recipeSummaryState.data?.title ?: "",
+                    text = recipeSummaryState.data?.title ?: "",
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 HtmlText(html = recipeSummaryState.data?.summary ?: "")
             }
+
             is ResultState.Error -> {
                 Text(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
                     text = "Summary not found"
                 )
