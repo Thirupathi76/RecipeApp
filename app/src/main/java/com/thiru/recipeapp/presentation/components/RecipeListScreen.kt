@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.thiru.recipeapp.common.ResultState
+import com.thiru.recipeapp.data.dto.Recipe
+import com.thiru.recipeapp.data.dto.RecipeList
 import com.thiru.recipeapp.presentation.viewmodel.RecipeViewModel
 
 @Composable
@@ -50,7 +53,7 @@ fun RecipeListScreen(
 ) {
     val recipeListState = viewModel.recipeList.collectAsState()
 
-    var searchText by remember { mutableStateOf(TextFieldValue()) }
+    val searchText by remember { mutableStateOf(TextFieldValue()) }
 
     Column {
         Column(
@@ -75,50 +78,7 @@ fun RecipeListScreen(
                         .background(Color.White)
                         .fillMaxWidth(),
                 ) {
-                    TextField(
-                        value = searchText,
-                        onValueChange = { newValue ->
-                            if (searchText.text != newValue.text) {
-                                searchText = newValue
-                                viewModel.onQueryChange(searchText.text)
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 8.dp)
-                            .background(color = Color.White),
-
-                        textStyle = TextStyle(color = Color.Black),
-                        placeholder = { Text("Enter a Recipe") },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                        singleLine = true,
-                        leadingIcon = {
-                            IconButton(onClick = {}) {
-                                Icon(Icons.Default.Search, contentDescription = "Search")
-                            }
-                        },
-                        trailingIcon = {
-                            if (searchText.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    searchText = TextFieldValue()
-                                    viewModel.onQueryChange("")
-                                }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Clear")
-                                }
-                            }
-                        },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            disabledContainerColor = Color.White,
-                            cursorColor = Color.LightGray,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        )
-                    )
+                    TextFieldComponent(searchText, viewModel)
                 }
             }
         }
@@ -130,39 +90,109 @@ fun RecipeListScreen(
             is ResultState.Success -> {
                 val recipes = recipeListState.value.data?.results ?: emptyList()
                 if(recipes.isEmpty()) {
-                    Text(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        text = "Results not found"
-                    )
+                    ShowResultNotFountText()
                 } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp),
-                    ) {
-                        items(recipes.size) { index ->
-                            RecipeItem(
-                                recipe = recipes[index],
-                                navController = navController,
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                    }
+                    ShowRecipeGrid(recipes, navController)
                 }
             }
             is ResultState.Error -> {
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    text = "Error: ${recipeListState.value.message}"
-                )
+                ShowErrorText(recipeListState)
             }
         }
     }
 
+}
+
+@Composable
+private fun ShowErrorText(recipeListState: State<ResultState<RecipeList>>) {
+    Text(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        text = "Error: ${recipeListState.value.message}"
+    )
+}
+
+@Composable
+private fun ShowRecipeGrid(
+    recipes: List<Recipe>,
+    navController: NavController
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 4.dp),
+    ) {
+        items(recipes.size) { index ->
+            RecipeItem(
+                recipe = recipes[index],
+                navController = navController,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun ShowResultNotFountText() {
+    Text(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        text = "Results not found"
+    )
+}
+
+@Composable
+private fun TextFieldComponent(
+    searchText: TextFieldValue,
+    viewModel: RecipeViewModel
+) {
+    var searchText1 = searchText
+    TextField(
+        value = searchText1,
+        onValueChange = { newValue ->
+            if (searchText1.text != newValue.text) {
+                searchText1 = newValue
+                viewModel.onQueryChange(searchText1.text)
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 8.dp)
+            .background(color = Color.White),
+
+        textStyle = TextStyle(color = Color.Black),
+        placeholder = { Text("Enter a Recipe") },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done
+        ),
+        singleLine = true,
+        leadingIcon = {
+            IconButton(onClick = {}) {
+                Icon(Icons.Default.Search, contentDescription = "Search")
+            }
+        },
+        trailingIcon = {
+            if (searchText1.text.isNotEmpty()) {
+                IconButton(onClick = {
+                    searchText1 = TextFieldValue()
+                    viewModel.onQueryChange("")
+                }) {
+                    Icon(Icons.Default.Close, contentDescription = "Clear")
+                }
+            }
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            disabledContainerColor = Color.White,
+            cursorColor = Color.LightGray,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
+    )
 }

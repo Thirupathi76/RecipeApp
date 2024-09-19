@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -85,6 +86,7 @@ fun RecipeItem(
                     .padding(horizontal = 10.dp, vertical = 6.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 2,
+                fontSize = 16.sp,
                 text = recipe.title
             )
         }
